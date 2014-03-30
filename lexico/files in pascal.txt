@@ -1,0 +1,60 @@
+Files
+Submitted by taoyue on Thu, 01/06/2011 - 20:48
+
+Reading from a file instead of the console (keyboard) can be done by:
+read (file_variable, argument_list);
+write (file_variable, argument_list);
+
+Similarly with readln and writeln. file_variable is declared as follows:
+var
+  ...
+  filein, fileout : text;
+
+The text data type indicates that the file is just plain text.
+
+After declaring a variable for the file, and before reading from or writing to it, we need to associate the variable with the filename on the disk and open the file. This can be done in one of two ways. Typically:
+reset (file_variable, 'filename.extension');
+     rewrite (file_variable, 'filename.extension');
+reset opens a file for reading, and rewrite opens a file for writing. A file opened with reset can only be used with read and readln. A file opened with rewrite can only be used with write and writeln.
+
+Turbo Pascal introduced the assign notation. First you assign a filename to a variable, then you call reset or rewrite using only the variable.
+assign (file_variable, 'filename.extension');
+reset (file_variable)
+
+The method of representing the path differs depending on your operating system. Windows uses backslashes and drive letters due to its DOS heritage (e.g. c:\directory\name.pas), while MacOS X and Linux use forward slashes due to their UNIX heritage.
+
+After you're done with the file, you can close it with:
+close (File_Identifier);
+
+Here's an example of a program that uses files. This program was written for Turbo Pascal and DOS, and will create file2.txt with the first character from file1.txt:
+program CopyOneByteFile;
+
+var
+   mychar : char;
+   filein, fileout : text;
+
+begin
+   assign (filein, 'c:\file1.txt');
+   reset (filein);
+   assign (fileout, 'c:\file2.txt');
+   rewrite (fileout);
+   read (filein, mychar);
+   write (fileout, mychar);
+   close(filein);
+   close(fileout)
+end. 
+
+
+EOLN and EOF
+Submitted by taoyue on Thu, 01/06/2011 - 20:48
+
+EOLN is a Boolean function that is TRUE when you have reached the end of a line in an open input file.
+eoln (file_variable)
+
+If you want to test to see if the standard input (the keyboard) is at an end-of-line, simply issue eoln without any parameters. This is similar to the way in which read and write use the console (keyboard and screen) if called without a file parameter.
+eoln
+
+EOF is a Boolean function that is TRUE when you have reached the end of the file.
+eof (file_variable)
+
+Usually, you don't type the end-of-file character from the keyboard. On DOS/Windows machines, the character is Control-Z. On UNIX/Linux machines, the character is Control-D. 

@@ -1,0 +1,51 @@
+
+# que eu me lembre
+:=
+=
+>=
+<=
+:
+
+# From http://www.freepascal.org/docs-html/ref/refse1.html#x9-80001.1
+# The following characters have a special meaning: 
++
+-
+*
+/
+=
+<
+>
+'['
+]
+.
+,
+(
+)
+:
+^
+@
+{
+}
+$
+#this is a sharp '#'
+'#'
+&
+%
+# and the following character pairs too: 
+<<
+>>
+**
+<>
+><
+<=
+>=
+:=
++=
+-=
+*=
+/=
+(*
+*)
+(.
+.)
+//

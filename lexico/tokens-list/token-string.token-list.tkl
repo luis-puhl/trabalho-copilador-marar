@@ -1,0 +1,21 @@
+1 program
+;
+uses
+type
+=
+record
+:
+integer
+packed
+array
+[*]
+of
+char
+end
+var
+byte
+file
+string
+BEGIN
+END.
+New
