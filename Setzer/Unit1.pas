@@ -58,8 +58,10 @@ begin
     if (simbolo[i]<>' ') then
       soma:=soma+Ord(simbolo[i]);
   end;
-
-  Hash:=(soma)mod(poscos-1);
+  if ((soma)mod(poscos-1))=0 then
+    Hash:=(soma)mod(poscos-1)+1
+  else
+    Hash:=(soma)mod(poscos-1);
 end;
 
 //Primeira rotina do programa, criará uma tabela através de Hashing para os simbolos
@@ -69,6 +71,7 @@ var
   poscos,i,posant,posnovo: integer;
 begin
   poscos:=60;
+  posnovo:=0;
   for i:=1 to QuntPalRes do
   begin
     if (Tabela[Hash(PalavrasReservadas[i])].simbolo = '') then
@@ -90,7 +93,6 @@ begin
         posnovo:=Tabela[Hash(PalavrasReservadas[i])].colisao;
         while (Tabela[posnovo].colisao) <> 0 do
         begin
-          posant:=posnovo;
           posnovo:=Tabela[posnovo].colisao;
         end;
         Tabela[poscos].simbolo:=PalavrasReservadas[i];
@@ -124,7 +126,6 @@ for i:=1 to QuntSimRes do
         posnovo:=Tabela[Hash(SimbolosReservados[i])].colisao;
         while (Tabela[posnovo].colisao) <> 0 do
         begin
-          posant:=posnovo;
           posnovo:=Tabela[posnovo].colisao;
         end;
         Tabela[poscos].simbolo:=SimbolosReservados[i];
