@@ -4,17 +4,34 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+<<<<<<< HEAD
   Dialogs, StdCtrls;
+=======
+  Dialogs, StdCtrls, Grids, Buttons;
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
 
 type
   CampoTabela = record
     simbolo: string;
     colisao: integer;
   end;
+<<<<<<< HEAD
   TForm1 = class(TForm)
     Button1: TButton;
     Label1: TLabel;
     Edit1: TEdit;
+=======
+  CampoLex = record
+    p1: string;
+    p2: string;
+  end;
+
+  TForm1 = class(TForm)
+    Edit1: TEdit;
+    Memo1: TMemo;
+    Button1: TButton;
+    procedure FormCreate(Sender: TObject);
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
     procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
@@ -28,14 +45,33 @@ const
   ';',':','"','<','>','<=','>=','<>','(',')','[',']','{','}','..',':=' );
 
   QuntPalRes = 34;  //Quantidade de palavras reservadas.
+<<<<<<< HEAD
   PalavrasReservadas : array[1..QuntPalRes] of string = ('and', 'array','begin,',
+=======
+  PalavrasReservadas : array[1..QuntPalRes] of string = ('and', 'array','begin',
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
   'case','const','div','do','downto','else','end','file','for','func','goto',
   'if','in','label','mod','nil','not','of','packed','proc','progr','record','repeat',
   'set','then','to','type','until','var','while','with' );
 
+<<<<<<< HEAD
 var
   Form1: TForm1;
   Tabela: array[1..QuntSimRes+QuntPalRes+3+30] of CampoTabela;
+=======
+  Letras : array[1..52] of string = ('A','B','C','D','E','F','G','H','I','J','K','L',
+  'M','N','O','P','Q','R','S','T','U','V','X','Y','W','Z','a','b','c','d','e','f','g',
+  'h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','w','z');
+
+  Numeros: array[1..10] of integer = (0,1,2,3,4,5,6,7,8,9);
+
+  TamanhoTabelaLex = 500;
+
+var
+  Form1: TForm1;
+  Tabela: array[1..QuntSimRes+QuntPalRes+3+30] of CampoTabela;
+  TabelaLex: array[1..500] of CampoLex;
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
 
 implementation
 
@@ -56,18 +92,31 @@ begin
     if (simbolo[i]<>' ') then
       soma:=soma+Ord(simbolo[i]);
   end;
+<<<<<<< HEAD
 
   Hash:=(soma)mod(poscos-1);
+=======
+  if ((soma)mod(poscos-1))=0 then
+    Hash:=(soma)mod(poscos-1)+1
+  else
+    Hash:=(soma)mod(poscos-1);
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
 end;
 
 //Primeira rotina do programa, criará uma tabela através de Hashing para os simbolos
 //e palavras reservadas.
 procedure CriaTabela();
 var
+<<<<<<< HEAD
   poscos,i,posant: integer;
 begin
   poscos:=60;
   posant:=0;
+=======
+  poscos,i,posnovo: integer;
+begin
+  poscos:=60;
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
   for i:=1 to QuntPalRes do
   begin
     if (Tabela[Hash(PalavrasReservadas[i])].simbolo = '') then
@@ -79,6 +128,7 @@ begin
     begin
       if (Tabela[Hash(PalavrasReservadas[i])].colisao = 0) then
       begin
+<<<<<<< HEAD
         while (Tabela[poscos].colisao) <> 0 do
           begin
             poscos:=poscos+1;
@@ -100,6 +150,26 @@ begin
         Tabela[posant].colisao := poscos;
       end; //
     end;  //end do else
+=======
+        Tabela[poscos].simbolo:=PalavrasReservadas[i];
+        Tabela[poscos].colisao:=0;
+        Tabela[Hash(PalavrasReservadas[i])].colisao := poscos;
+        poscos:=poscos+1;
+      end
+      else
+      begin
+        posnovo:=Tabela[Hash(PalavrasReservadas[i])].colisao;
+        while (Tabela[posnovo].colisao) <> 0 do
+        begin
+          posnovo:=Tabela[posnovo].colisao;
+        end;
+        Tabela[poscos].simbolo:=PalavrasReservadas[i];
+        Tabela[posnovo].colisao:=poscos;
+        Tabela[poscos].colisao:=0;
+        poscos:=poscos+1;
+      end; //
+    end;
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
   end;
 
 //Criando simbolos reservados
@@ -115,6 +185,7 @@ for i:=1 to QuntSimRes do
     begin
       if (Tabela[Hash(SimbolosReservados[i])].colisao = 0) then
       begin
+<<<<<<< HEAD
         while (Tabela[poscos].colisao) <> 0 do
           begin
             poscos:=poscos+1;
@@ -134,12 +205,31 @@ for i:=1 to QuntSimRes do
         Tabela[poscos].simbolo:=SimbolosReservados[i];
         Tabela[poscos].colisao:=0;
         Tabela[posant].colisao := poscos;
+=======
+        Tabela[poscos].simbolo:=SimbolosReservados[i];
+        Tabela[poscos].colisao:=0;
+        Tabela[Hash(SimbolosReservados[i])].colisao := poscos;
+        poscos:=poscos+1;
+      end
+      else
+      begin
+        posnovo:=Tabela[Hash(SimbolosReservados[i])].colisao;
+        while (Tabela[posnovo].colisao) <> 0 do
+        begin
+          posnovo:=Tabela[posnovo].colisao;
+        end;
+        Tabela[poscos].simbolo:=SimbolosReservados[i];
+        Tabela[posnovo].colisao:=poscos;
+        Tabela[poscos].colisao:=0;
+        poscos:=poscos+1;
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
       end; //
     end;  //end do else
   end;
 
 end;
 
+<<<<<<< HEAD
 Função que procura uma cadeia de caracteres na tabela gerada por Hashing
 function ProcuraTabela(entrada:string) : Boolean;
 begin
@@ -152,6 +242,160 @@ Label1.Caption:=IntToStr(Hash(Edit1.Text));
 CriaTabela;  //Criação da Tabela
 
 
+=======
+
+//Função que procura uma cadeia de caracteres na tabela gerada por Hashing
+function ProcuraTabela(entrada:string) : Boolean;
+var
+  poscos:integer;
+  retorno:Boolean;
+begin
+retorno:=False;
+  if (Tabela[Hash(entrada)].simbolo = entrada) then
+    retorno:=True
+  else
+  begin
+    if (Tabela[Hash(entrada)].colisao = 0) then
+      retorno:=False
+    else
+    begin
+      poscos:=Tabela[Hash(entrada)].colisao;
+      if (Tabela[poscos].simbolo = entrada) then
+        retorno:=True
+      else
+      begin
+        while (Tabela[poscos].colisao) <> 0 do
+        begin
+          poscos:=Tabela[poscos].colisao;
+          if (Tabela[poscos].simbolo = entrada) then
+            retorno:=True;
+        end;
+      end;
+    end;
+  end;
+ProcuraTabela:=retorno;
+end;
+
+//Verifica se o caractere é uma letra
+function PertenceLetras(entrada: char):Boolean;
+var
+  i:integer;
+  retorno:Boolean;
+begin
+  retorno:=False;
+  for i:=1 to 52 do
+  begin
+    if Letras[i]=entrada then
+    retorno:=True;
+  end;
+  PertenceLetras:=retorno;
+end;
+
+//Verifica se o caractere é um numero
+function PertenceNumeros(entrada: char):Boolean;
+var
+  i:integer;
+  retorno:Boolean;
+begin
+  retorno:=False;
+  for i:=1 to 10 do
+  begin
+    if IntToStr(Numeros[i])=entrada then
+    retorno:=True;
+  end;
+  PertenceNumeros:=retorno;
+end;
+
+//Rotina do Analisador Léxico
+procedure ALex(entrada: string);
+//Considerações:
+//Entrada é o bloco de texto completo.
+var
+  ctrl,pos,postabela:integer;
+  buffer:string;
+  bufferhold:char;
+begin
+  ctrl:=0;
+  pos:=1;
+  postabela:=1;
+  while (true) do
+  begin
+    if Length(entrada)=pos then begin Exit; end;
+    case ctrl of
+      0: //Estado inicial - Ignora espaços em branco
+      begin
+        if (entrada[pos]=' ') then
+          ctrl:=0
+        else
+        begin
+          if (PertenceLetras(entrada[pos])) then
+            ctrl:=1;
+          if (PertenceNumeros(entrada[pos])) then
+            ctrl:=2;
+          bufferhold:=entrada[pos];
+          buffer:=Concat(buffer,bufferhold);
+          pos:=pos+1;
+        end;
+      end;
+      1: //Le letras e numeros apenas
+      begin
+        if (entrada[pos]=' ') then
+          ctrl:=50;
+        if (PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) then
+          begin
+            bufferhold:=entrada[pos];
+            buffer:=Concat(buffer,bufferhold);
+            ctrl:=1;
+            pos:=pos+1;
+          end
+          else
+          begin
+            ctrl:=99;
+          end;
+      end;
+      2: //Le apenas numeros
+      begin
+
+      end;
+      3:
+      begin
+
+      end;
+      4:
+      begin
+
+      end;
+      50: //Finalização de entrada do buffer
+      begin
+        if (ProcuraTabela(buffer)) then //Palavra é palavra ou símbolo reservado.
+        begin
+        TabelaLex[postabela].p1:=buffer;
+        TabelaLex[postabela].p2:=buffer;
+        showMessage(TabelaLex[postabela].p1);
+        end;
+        buffer:='';
+        postabela:=postabela+1;
+        ctrl:=1;
+      end;
+      99:
+      begin
+      
+      end;
+    end;
+  end;
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+CriaTabela;
+Memo1.Lines.Clear;
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ALex(Edit1.Text);
+>>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
 end;
 
 end.
