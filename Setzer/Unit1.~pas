@@ -11,13 +11,17 @@ type
     simbolo: string;
     colisao: integer;
   end;
+  CampoLex = record
+    p1: string;
+    p2: string;
+  end;
+
   TForm1 = class(TForm)
-    Button1: TButton;
-    Label1: TLabel;
     Edit1: TEdit;
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    Memo1: TMemo;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -35,9 +39,18 @@ const
   'if','in','label','mod','nil','not','of','packed','proc','progr','record','repeat',
   'set','then','to','type','until','var','while','with' );
 
+  Letras : array[1..52] of string = ('A','B','C','D','E','F','G','H','I','J','K','L',
+  'M','N','O','P','Q','R','S','T','U','V','X','Y','W','Z','a','b','c','d','e','f','g',
+  'h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','w','z');
+
+  Numeros: array[1..10] of integer = (0,1,2,3,4,5,6,7,8,9);
+
+  TamanhoTabelaLex = 500;
+
 var
   Form1: TForm1;
   Tabela: array[1..QuntSimRes+QuntPalRes+3+30] of CampoTabela;
+  TabelaLex: array[1..500] of CampoLex;
 
 implementation
 
@@ -58,18 +71,19 @@ begin
     if (simbolo[i]<>' ') then
       soma:=soma+Ord(simbolo[i]);
   end;
-
-  Hash:=(soma)mod(poscos-1);
+  if ((soma)mod(poscos-1))=0 then
+    Hash:=(soma)mod(poscos-1)+1
+  else
+    Hash:=(soma)mod(poscos-1);
 end;
 
 //Primeira rotina do programa, criará uma tabela através de Hashing para os simbolos
 //e palavras reservadas.
 procedure CriaTabela();
 var
-  poscos,i,posant,posnovo: integer;
+  poscos,i,posnovo: integer;
 begin
   poscos:=60;
-  posnovo:=0;
   for i:=1 to QuntPalRes do
   begin
     if (Tabela[Hash(PalavrasReservadas[i])].simbolo = '') then
@@ -122,7 +136,6 @@ for i:=1 to QuntSimRes do
       else
       begin
         posnovo:=Tabela[Hash(SimbolosReservados[i])].colisao;
-        showmessage(IntToStr());
         while (Tabela[posnovo].colisao) <> 0 do
         begin
           posnovo:=Tabela[posnovo].colisao;
@@ -145,7 +158,6 @@ var
   retorno:Boolean;
 begin
 retorno:=False;
-poscos:=0;
   if (Tabela[Hash(entrada)].simbolo = entrada) then
     retorno:=True
   else
@@ -171,41 +183,125 @@ poscos:=0;
 ProcuraTabela:=retorno;
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
+//Verifica se o caractere é uma letra
+function PertenceLetras(entrada: char):Boolean;
+var
+  i:integer;
+  retorno:Boolean;
 begin
-if (ProcuraTabela(Edit1.Text)) then
-Label1.Caption:='na tabela.'
-else
-Label1.Caption:='nao esta na tabela';
-
+  retorno:=False;
+  for i:=1 to 52 do
+  begin
+    if Letras[i]=entrada then
+    retorno:=True;
+  end;
+  PertenceLetras:=retorno;
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+//Verifica se o caractere é um numero
+function PertenceNumeros(entrada: char):Boolean;
 var
-  i: integer;
-  cont:integer;
+  i:integer;
+  retorno:Boolean;
 begin
-  //Criação da Tabela
-cont:=0;
-for i:=1 to 90 do
-//showmessage(Tabela[i].simbolo + ' / ' + IntToStr(Tabela[i].colisao));
-
-begin
-  if (Tabela[i].simbolo <> '') then
+  retorno:=False;
+  for i:=1 to 10 do
   begin
-  cont:=cont+1;
+    if IntToStr(Numeros[i])=entrada then
+    retorno:=True;
+  end;
+  PertenceNumeros:=retorno;
+end;
+
+//Rotina do Analisador Léxico
+procedure ALex(entrada: string);
+//Considerações:
+//Entrada é o bloco de texto completo.
+var
+  ctrl,pos,postabela:integer;
+  buffer:string;
+  bufferhold:char;
+begin
+  ctrl:=0;
+  pos:=1;
+  postabela:=1;
+  while (true) do
+  begin
+    if Length(entrada)=pos then begin Exit; end;
+    case ctrl of
+      0: //Estado inicial - Ignora espaços em branco
+      begin
+        if (entrada[pos]=' ') then
+          ctrl:=0
+        else
+        begin
+          if (PertenceLetras(entrada[pos])) then
+            ctrl:=1;
+          if (PertenceNumeros(entrada[pos])) then
+            ctrl:=2;
+          bufferhold:=entrada[pos];
+          buffer:=Concat(buffer,bufferhold);
+          pos:=pos+1;
+        end;
+      end;
+      1: //Le letras e numeros apenas
+      begin
+        if (entrada[pos]=' ') then
+          ctrl:=50;
+        if (PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) then
+          begin
+            bufferhold:=entrada[pos];
+            buffer:=Concat(buffer,bufferhold);
+            ctrl:=1;
+            pos:=pos+1;
+          end
+          else
+          begin
+            ctrl:=99;
+          end;
+      end;
+      2: //Le apenas numeros
+      begin
+
+      end;
+      3:
+      begin
+
+      end;
+      4:
+      begin
+
+      end;
+      50: //Finalização de entrada do buffer
+      begin
+        if (ProcuraTabela(buffer)) then //Palavra é palavra ou símbolo reservado.
+        begin
+        TabelaLex[postabela].p1:=buffer;
+        TabelaLex[postabela].p2:=buffer;
+        showMessage(TabelaLex[postabela].p1);
+        end;
+        buffer:='';
+        postabela:=postabela+1;
+        ctrl:=1;
+      end;
+      99:
+      begin
+      showMessage(buffer);
+      end;
+    end;
   end;
 end;
-
-
-showMessage(IntToStr(cont));
-end;
-
-
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 CriaTabela;
+Memo1.Lines.Clear;
+end;
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+ALex(Edit1.Text);
 end;
 
 end.
