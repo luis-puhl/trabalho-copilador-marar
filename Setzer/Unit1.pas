@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Grids, Buttons;
+  Dialogs, StdCtrls, Grids, Buttons, ComCtrls;
 
 type
   CampoTabela = record
@@ -17,9 +17,12 @@ type
   end;
 
   TForm1 = class(TForm)
-    Edit1: TEdit;
     Memo1: TMemo;
     Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    ProgressBar1: TProgressBar;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
@@ -219,26 +222,33 @@ procedure ALex(entrada: string);
 //Entrada é o bloco de texto completo.
 var
   ctrl,pos,postabela:integer;
-  buffer:string;
+  tamanho:integer;
+  buffer,buffer2:string;
   bufferhold:char;
 begin
   ctrl:=0;
   pos:=1;
   postabela:=1;
+  tamanho:=Length(entrada);
   while (true) do
   begin
-    if Length(entrada)=pos then begin Exit; end;
+    showmessage(IntToStr(pos) + ' / '+buffer);
     case ctrl of
       0: //Estado inicial - Ignora espaços em branco
       begin
-        if (entrada[pos]=' ') then
-          ctrl:=0
+        if (entrada[pos]=' ') or (entrada[pos]=';') or (entrada[pos]=#13) or (entrada[pos]=#10) then
+        begin
+          ctrl:=0;
+          pos:=pos+1;
+        end
         else
         begin
           if (PertenceLetras(entrada[pos])) then
             ctrl:=1;
           if (PertenceNumeros(entrada[pos])) then
             ctrl:=2;
+          if (PertenceLetras(entrada[pos]) = FALSE) and ( PertenceNumeros(entrada[pos]) = FALSE) then
+            ctrl:=3;
           bufferhold:=entrada[pos];
           buffer:=Concat(buffer,bufferhold);
           pos:=pos+1;
@@ -246,9 +256,13 @@ begin
       end;
       1: //Le letras e numeros apenas
       begin
-        if (entrada[pos]=' ') then
+        if ((PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) = FALSE)  then
+        begin
           ctrl:=50;
-        if (PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) then
+        end
+        else
+        begin
+          if (PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) then
           begin
             bufferhold:=entrada[pos];
             buffer:=Concat(buffer,bufferhold);
@@ -259,14 +273,42 @@ begin
           begin
             ctrl:=99;
           end;
+        end;
       end;
       2: //Le apenas numeros
       begin
-
+        if (PertenceNumeros(entrada[pos]) = FALSE) then
+        begin
+          ctrl:=50;
+        end
+        else
+        begin
+          if PertenceNumeros(entrada[pos]) then
+          begin
+            bufferhold:=entrada[pos];
+            buffer:=Concat(buffer,bufferhold);
+            ctrl:=2;
+            pos:=pos+1;
+          end
+          else
+          begin
+            ctrl:=99;
+          end;
+        end;
       end;
       3:
       begin
-
+        if PertenceLetras(entrada[pos]) and PertenceNumeros(entrada[pos]) = FALSE then
+        begin
+          bufferhold:=entrada[pos];
+          buffer:=Concat(buffer,bufferhold);
+          ctrl:=3;
+          pos:=pos+1;
+        end
+        else
+        begin
+          ctrl:=50;
+        end;
       end;
       4:
       begin
@@ -276,19 +318,40 @@ begin
       begin
         if (ProcuraTabela(buffer)) then //Palavra é palavra ou símbolo reservado.
         begin
-        TabelaLex[postabela].p1:=buffer;
-        TabelaLex[postabela].p2:=buffer;
-        showMessage(TabelaLex[postabela].p1);
+          TabelaLex[postabela].p1:='RESERV';
+          TabelaLex[postabela].p2:=buffer;
+        end
+        else
+        begin //Não é palavra nem símbolo reservado (Identificador ou numero)
+          if PertenceNumeros(buffer[1]) then  //É um numero
+          begin
+            TabelaLex[postabela].p1:='NUM_INT';
+            TabelaLex[postabela].p2:=buffer;
+          end
+          else
+          begin
+            if PertenceLetras(buffer[1]) then //É um identificador
+            begin
+              TabelaLex[postabela].p1:='IDENT'; //Identificador
+              TabelaLex[postabela].p2:=buffer;
+            end
+            else   //É um operador
+            begin
+              TabelaLex[postabela].p1:='OPERADOR';
+              TabelaLex[postabela].p2:=buffer;
+            end;
+          end;
         end;
         buffer:='';
         postabela:=postabela+1;
-        ctrl:=1;
+        ctrl:=0;
       end;
       99:
       begin
-      
+        Exit;
       end;
     end;
+    if (pos+1=tamanho) then Exit;
   end;
 end;
 
@@ -301,7 +364,11 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-ALex(Edit1.Text);
+ALex(Memo1.Lines.GetText);
+showMessage(TabelaLex[1].p1 + ' / ' + TabelaLex[1].p2);
+showMessage(TabelaLex[2].p1 + ' / ' + TabelaLex[2].p2);
+showMessage(TabelaLex[3].p1 + ' / ' + TabelaLex[3].p2);
+
 end;
 
 end.
