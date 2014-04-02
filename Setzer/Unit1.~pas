@@ -25,6 +25,9 @@ type
     ProgressBar1: TProgressBar;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -54,8 +57,11 @@ var
   Form1: TForm1;
   Tabela: array[1..QuntSimRes+QuntPalRes+3+30] of CampoTabela;
   TabelaLex: array[1..500] of CampoLex;
+  postabela:integer;
 
 implementation
+
+uses Unit2;
 
 {$R *.dfm}
 
@@ -221,25 +227,22 @@ procedure ALex(entrada: string);
 //Considerações:
 //Entrada é o bloco de texto completo.
 var
-  ctrl,pos,postabela:integer;
+  ctrl,pos:integer;
   tamanho:integer;
   buffer,buffer2:string;
   bufferhold:char;
 begin
   ctrl:=0;
   pos:=1;
-  postabela:=1;
   tamanho:=Length(entrada);
   while (true) do
   begin
-    showmessage(IntToStr(pos) + ' / '+buffer);
+    //showmessage(IntToStr(pos) + ' / '+buffer);
+    if (pos=tamanho) or (pos>tamanho) then Exit;
     case ctrl of
       0: //Estado inicial - Ignora espaços em branco
       begin
-        if (entrada[pos]=#13) or (entrada[pos]=#10) then
-          ctrl:=0;
-          pos:=pos+1;
-        if (entrada[pos]=' ') or (entrada[pos]=';') then
+        if (entrada[pos]=' ') or (entrada[pos]=#13) or (entrada[pos]=#10) then
         begin
           ctrl:=0;
           pos:=pos+1;
@@ -301,16 +304,23 @@ begin
       end;
       3:
       begin
-        if PertenceLetras(entrada[pos]) and PertenceNumeros(entrada[pos]) = FALSE then
+        if (entrada[pos]=' ') or (entrada[pos]=#13) or (entrada[pos]=#10) then
         begin
-          bufferhold:=entrada[pos];
-          buffer:=Concat(buffer,bufferhold);
-          ctrl:=3;
-          pos:=pos+1;
+          ctrl:=50;
         end
         else
         begin
-          ctrl:=50;
+          if (PertenceLetras(entrada[pos]) = FALSE) and (PertenceNumeros(entrada[pos]) = FALSE) then
+          begin
+            bufferhold:=entrada[pos];
+            buffer:=Concat(buffer,bufferhold);
+            ctrl:=3;
+            pos:=pos+1;
+          end
+          else
+          begin
+            ctrl:=50;
+          end;
         end;
       end;
       4:
@@ -354,7 +364,7 @@ begin
         Exit;
       end;
     end;
-    if (pos+1=tamanho) then Exit;
+    if (pos-1=tamanho) then Exit;
   end;
 end;
 
@@ -366,12 +376,66 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
+var
+  j:integer;
 begin
-ALex(Memo1.Lines.GetText);
-showMessage(TabelaLex[1].p1 + ' / ' + TabelaLex[1].p2);
-showMessage(TabelaLex[2].p1 + ' / ' + TabelaLex[2].p2);
-showMessage(TabelaLex[3].p1 + ' / ' + TabelaLex[3].p2);
+  postabela:=1;
+  ALex(Memo1.Lines.GetText);
+  Form2.StringGrid1.RowCount:=postabela+1;
+  Form2.Show;
+  for j:=1 to postabela do
+  begin
+    Form2.StringGrid1.Cells[0,1]:='pipi';
+    Form2.StringGrid1.Cells[1,1]:=TabelaLex[j].p2;
+  end;
+end;
 
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  escolha: integer;
+begin
+  escolha := MessageDlg('Começar um novo projeto apagará todos os dados não salvos, deseja continuar?',mtConfirmation, mbOKCancel, 0);
+  if escolha = mrOK then
+  begin
+    Memo1.Lines.Clear;
+  end;
+  if escolha = mrCancel then
+  begin
+    Exit;
+  end;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  openDialog1:TOpenDialog;
+begin
+  openDialog1 := TOpenDialog.Create(self);
+  openDialog1.InitialDir := GetCurrentDir;
+  openDialog1.Filter :='Arquivos Pascal (*.pas)|*.pas';
+  if openDialog1.Execute then
+  begin
+    Memo1.Lines.LoadFromFile(OpenDialog1.FileName);
+  end
+  else
+    Exit;
+  openDialog1.Free;
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  saveDialog1:TSaveDialog;
+begin
+  saveDialog1:= TSaveDialog.Create(self);
+  saveDialog1.InitialDir := GetCurrentDir;
+  saveDialog1.Filter :='Arquivos Pascal (*.pas)|*.pas';
+  if saveDialog1.Execute then
+  begin
+    Memo1.Lines.SaveToFile(saveDialog1.FileName + '.pas');
+    Form1.Caption:=Concat('Compilador Pascal - ' + saveDialog1.Filename);
+  end
+  else
+    Exit;
+  saveDialog1.Free;
 end;
 
 end.

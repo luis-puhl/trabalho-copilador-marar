@@ -11,6 +11,7 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
@@ -39,6 +40,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Novo'
     TabOrder = 2
+    OnClick = Button2Click
   end
   object Button3: TButton
     Left = 8
@@ -47,6 +49,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Abrir'
     TabOrder = 3
+    OnClick = Button3Click
   end
   object Button4: TButton
     Left = 8
@@ -55,6 +58,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Salvar'
     TabOrder = 4
+    OnClick = Button4Click
   end
   object ProgressBar1: TProgressBar
     Left = 0
