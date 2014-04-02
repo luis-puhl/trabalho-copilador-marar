@@ -17,28 +17,43 @@
    
 }
 
+// program read_fonte;
+unit read_fonte;
 
-program read_fonte;
+{ contantes }
+{ tipos }
+{ variáveis }
+{ propriedades }
+{ procedimentos }
+interface
+	const
+		FONT_FOLDER = 'test-case/';
+		FONT_PATT = 'test_';
+		FONT_EXT = '.pas';
+		FONT_MAX_SIZE = 1500;
 
+	var
+		i : integer;
+		
+		fileIndex : integer = 1;
+		font : array [0..FONT_MAX_SIZE] of char;
+		fontFile : text;
+		fontName : string;
+		fontSize : integer;
+		
+		codeLine : string;
+	
+	function intToString( i : integer ) : string;
+	
+
+implementation
+
+{
 uses
 	crt;
+}
 
-const
-	FONT_FOLDER = 'test-case/';
-	FONT_PATT = 'test_';
-	FONT_EXT = '.pas';
-	FONT_MAX_SIZE = 1500;
 
-var
-	i : integer;
-	
-	fileIndex : integer = 1;
-	font : array [0..FONT_MAX_SIZE] of char;
-	fontFile : text;
-	fontName : string;
-	fontSize : integer;
-	
-	codeLine : string;
 
 function intToString( i : integer ) : string;
 var
@@ -70,7 +85,8 @@ begin
 }
 end;
 
-BEGIN
+Initialization
+begin
 	writeLn( 'fontName' );
 	fontName := FONT_FOLDER + FONT_PATT + intToString( fileIndex ) + FONT_EXT;
 	writeLn( fontName );
@@ -102,5 +118,6 @@ BEGIN
 	
 	
 	
-END.
+end;
 
+end.
