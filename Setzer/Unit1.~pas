@@ -5,10 +5,14 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
 <<<<<<< HEAD
+<<<<<<< HEAD
   Dialogs, StdCtrls;
 =======
   Dialogs, StdCtrls, Grids, Buttons;
 >>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
+=======
+  Dialogs, StdCtrls, Grids, Buttons, ComCtrls;
+>>>>>>> e8b7ec1bec1c0c7680489f413d44bb070b28e582
 
 type
   CampoTabela = record
@@ -27,12 +31,18 @@ type
   end;
 
   TForm1 = class(TForm)
-    Edit1: TEdit;
     Memo1: TMemo;
     Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    ProgressBar1: TProgressBar;
     procedure FormCreate(Sender: TObject);
 >>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -71,9 +81,15 @@ var
   Form1: TForm1;
   Tabela: array[1..QuntSimRes+QuntPalRes+3+30] of CampoTabela;
   TabelaLex: array[1..500] of CampoLex;
+<<<<<<< HEAD
 >>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
+=======
+  postabela:integer;
+>>>>>>> e8b7ec1bec1c0c7680489f413d44bb070b28e582
 
 implementation
+
+uses Unit2;
 
 {$R *.dfm}
 
@@ -313,27 +329,34 @@ procedure ALex(entrada: string);
 //Considerações:
 //Entrada é o bloco de texto completo.
 var
-  ctrl,pos,postabela:integer;
-  buffer:string;
+  ctrl,pos:integer;
+  tamanho:integer;
+  buffer,buffer2:string;
   bufferhold:char;
 begin
   ctrl:=0;
   pos:=1;
-  postabela:=1;
+  tamanho:=Length(entrada);
   while (true) do
   begin
-    if Length(entrada)=pos then begin Exit; end;
+    //showmessage(IntToStr(pos) + ' / '+buffer);
+    if (pos=tamanho) or (pos>tamanho) then Exit;
     case ctrl of
       0: //Estado inicial - Ignora espaços em branco
       begin
-        if (entrada[pos]=' ') then
-          ctrl:=0
+        if (entrada[pos]=' ') or (entrada[pos]=#13) or (entrada[pos]=#10) then
+        begin
+          ctrl:=0;
+          pos:=pos+1;
+        end
         else
         begin
           if (PertenceLetras(entrada[pos])) then
             ctrl:=1;
           if (PertenceNumeros(entrada[pos])) then
             ctrl:=2;
+          if (PertenceLetras(entrada[pos]) = FALSE) and ( PertenceNumeros(entrada[pos]) = FALSE) then
+            ctrl:=3;
           bufferhold:=entrada[pos];
           buffer:=Concat(buffer,bufferhold);
           pos:=pos+1;
@@ -341,9 +364,13 @@ begin
       end;
       1: //Le letras e numeros apenas
       begin
-        if (entrada[pos]=' ') then
+        if ((PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) = FALSE)  then
+        begin
           ctrl:=50;
-        if (PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) then
+        end
+        else
+        begin
+          if (PertenceLetras(entrada[pos]) or PertenceNumeros(entrada[pos])) then
           begin
             bufferhold:=entrada[pos];
             buffer:=Concat(buffer,bufferhold);
@@ -354,14 +381,49 @@ begin
           begin
             ctrl:=99;
           end;
+        end;
       end;
       2: //Le apenas numeros
       begin
-
+        if (PertenceNumeros(entrada[pos]) = FALSE) then
+        begin
+          ctrl:=50;
+        end
+        else
+        begin
+          if PertenceNumeros(entrada[pos]) then
+          begin
+            bufferhold:=entrada[pos];
+            buffer:=Concat(buffer,bufferhold);
+            ctrl:=2;
+            pos:=pos+1;
+          end
+          else
+          begin
+            ctrl:=99;
+          end;
+        end;
       end;
       3:
       begin
-
+        if (entrada[pos]=' ') or (entrada[pos]=#13) or (entrada[pos]=#10) then
+        begin
+          ctrl:=50;
+        end
+        else
+        begin
+          if (PertenceLetras(entrada[pos]) = FALSE) and (PertenceNumeros(entrada[pos]) = FALSE) then
+          begin
+            bufferhold:=entrada[pos];
+            buffer:=Concat(buffer,bufferhold);
+            ctrl:=3;
+            pos:=pos+1;
+          end
+          else
+          begin
+            ctrl:=50;
+          end;
+        end;
       end;
       4:
       begin
@@ -371,19 +433,40 @@ begin
       begin
         if (ProcuraTabela(buffer)) then //Palavra é palavra ou símbolo reservado.
         begin
-        TabelaLex[postabela].p1:=buffer;
-        TabelaLex[postabela].p2:=buffer;
-        showMessage(TabelaLex[postabela].p1);
+          TabelaLex[postabela].p1:='RESERV';
+          TabelaLex[postabela].p2:=buffer;
+        end
+        else
+        begin //Não é palavra nem símbolo reservado (Identificador ou numero)
+          if PertenceNumeros(buffer[1]) then  //É um numero
+          begin
+            TabelaLex[postabela].p1:='NUM_INT';
+            TabelaLex[postabela].p2:=buffer;
+          end
+          else
+          begin
+            if PertenceLetras(buffer[1]) then //É um identificador
+            begin
+              TabelaLex[postabela].p1:='IDENT'; //Identificador
+              TabelaLex[postabela].p2:=buffer;
+            end
+            else   //É um operador
+            begin
+              TabelaLex[postabela].p1:='OPERADOR';
+              TabelaLex[postabela].p2:=buffer;
+            end;
+          end;
         end;
         buffer:='';
         postabela:=postabela+1;
-        ctrl:=1;
+        ctrl:=0;
       end;
       99:
       begin
-      showMessage(buffer);
+        Exit;
       end;
     end;
+    if (pos-1=tamanho) then Exit;
   end;
 end;
 
@@ -395,9 +478,71 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
+var
+  j:integer;
 begin
+  postabela:=1;
+  ALex(Memo1.Lines.GetText);
+  Form2.StringGrid1.RowCount:=postabela+1;
+  Form2.Show;
+  for j:=1 to postabela do
+  begin
+    Form2.StringGrid1.Cells[0,1]:='pipi';
+    Form2.StringGrid1.Cells[1,1]:=TabelaLex[j].p2;
+  end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  escolha: integer;
+begin
+  escolha := MessageDlg('Começar um novo projeto apagará todos os dados não salvos, deseja continuar?',mtConfirmation, mbOKCancel, 0);
+  if escolha = mrOK then
+  begin
+    Memo1.Lines.Clear;
+  end;
+  if escolha = mrCancel then
+  begin
+    Exit;
+  end;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  openDialog1:TOpenDialog;
+begin
+<<<<<<< HEAD
 ALex(Edit1.Text);
 >>>>>>> be9be51c8d3624ea256775386a53ccc92292e5a7
+=======
+  openDialog1 := TOpenDialog.Create(self);
+  openDialog1.InitialDir := GetCurrentDir;
+  openDialog1.Filter :='Arquivos Pascal (*.pas)|*.pas';
+  if openDialog1.Execute then
+  begin
+    Memo1.Lines.LoadFromFile(OpenDialog1.FileName);
+  end
+  else
+    Exit;
+  openDialog1.Free;
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  saveDialog1:TSaveDialog;
+begin
+  saveDialog1:= TSaveDialog.Create(self);
+  saveDialog1.InitialDir := GetCurrentDir;
+  saveDialog1.Filter :='Arquivos Pascal (*.pas)|*.pas';
+  if saveDialog1.Execute then
+  begin
+    Memo1.Lines.SaveToFile(saveDialog1.FileName + '.pas');
+    Form1.Caption:=Concat('Compilador Pascal - ' + saveDialog1.Filename);
+  end
+  else
+    Exit;
+  saveDialog1.Free;
+>>>>>>> e8b7ec1bec1c0c7680489f413d44bb070b28e582
 end;
 
 end.
